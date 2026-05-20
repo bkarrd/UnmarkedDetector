@@ -1,0 +1,116 @@
+<resources>
+    <string name="app_name">UnmarkedDetector</string>
+
+    <string name="splash_title">DETEKTOR</string>
+    <string name="splash_subtitle">nieoznakowanych</string>
+    <string name="splash_loader">Inicjalizacja kamery, OCR i lokalnej bazy...</string>
+
+    <string name="status_active">Aktywny - skanowanie tablic</string>
+    <string name="status_speed_wait">Pauza - predkosc ponizej 5 km/h</string>
+    <string name="status_screen_pause">Pauza - ekran wygaszony ponad 30 min</string>
+    <string name="status_stopped">Wstrzymane</string>
+
+    <string name="main_scanned_count">Przeskanowane tablice: %1$d</string>
+    <string name="main_speed">Predkosc GPS: %1$.1f km/h</string>
+    <string name="main_speed_unit">km/h</string>
+    <string name="main_last_plate">Ostatnia tablica: %1$s</string>
+    <string name="main_last_plate_empty">Ostatnia tablica: brak</string>
+    <string name="main_start">Start</string>
+    <string name="main_stop">Stop</string>
+    <string name="main_settings">Ustawienia</string>
+    <string name="main_home">Ekran glowny</string>
+    <string name="main_title">Tryb jazdy</string>
+    <string name="main_camera_assumption">MVP: wykorzystujemy tylna kamere telefonu skierowana na droge.</string>
+    <string name="main_scan_interval">Interwal skanowania: %1$d ms</string>
+    <string name="main_stat_scans">Unikalne tablice</string>
+    <string name="main_stat_alerts">Alertow</string>
+    <string name="main_stat_last_scan">Ostatni skan</string>
+    <string name="unique_plates_dialog_title">Unikalne tablice</string>
+    <string name="unique_plates_dialog_empty">Brak wykrytych tablic w tej sesji.</string>
+
+    <string name="service_channel_name">Detekcja podczas jazdy</string>
+    <string name="service_channel_description">Foreground service dla OCR tablic i alertow w tle.</string>
+    <string name="service_notification_title">UnmarkedDetector dziala w tle</string>
+    <string name="service_action_stop">Zatrzymaj</string>
+
+    <string name="alert_channel_name">Alerty wykrycia</string>
+    <string name="alert_channel_description">Pilne alerty o dopasowaniu tablic do lokalnej bazy.</string>
+    <string name="alert_notification_title">Wykryto potencjalny nieoznakowany pojazd</string>
+    <string name="alert_notification_body">%1$s %2$s, tablica %3$s</string>
+    <string name="alert_reported">Zapisano zgloszenie blednego alarmu. TODO: wysylka do backendu.</string>
+
+    <string name="overlay_report_error">Zglos blad</string>
+    <string name="overlay_close">Zamknij</string>
+    <string name="overlay_plate">Tablica: %1$s</string>
+    <string name="overlay_vehicle">%1$s %2$s</string>
+    <string name="overlay_region">Region: %1$s</string>
+    <string name="overlay_title">WYKRYTO NIEOZNAKOWANY</string>
+    <string name="overlay_confidence">Pewnosc OCR: %1$d%%</string>
+
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_alert_volume">Glosnosc alertu</string>
+    <string name="settings_alert_volume_value">Poziom: %1$d%%</string>
+    <string name="settings_vibration">Wibracja</string>
+    <string name="settings_database_version">Wersja bazy: %1$s</string>
+    <string name="settings_check_updates">Sprawdz aktualizacje</string>
+    <string name="settings_updates_todo">TODO: endpoint aktualizacji bazy zostanie podpiety w v1.0.</string>
+    <string name="settings_updates_synced">Zsynchronizowano rekordy z Supabase: %1$d</string>
+    <string name="settings_updates_failed">Nie udalo sie zsynchronizowac bazy: %1$s</string>
+    <string name="settings_updates_failed_unknown">nieznany blad</string>
+    <string name="settings_billing_title">Zakup / subskrypcja</string>
+    <string name="settings_billing_description">MVP pokazuje tylko placeholder. Google Play Billing podpinamy w v1.0.</string>
+    <string name="settings_billing_cta">Poznaj plany</string>
+    <string name="settings_billing_todo">TODO: subskrypcja 8 zl/mies. lub zakup 30 zl.</string>
+
+    <string name="onboarding_title">Gotowy do jazdy?</string>
+    <string name="onboarding_subtitle">Najpierw uporzadkuj uprawnienia i baterie, potem wybierz tryb pracy. Aplikacja ma dzialac stabilnie obok nawigacji i byc czytelna podczas jazdy.</string>
+    <string name="onboarding_permissions_title">Wymagane uprawnienia</string>
+    <string name="onboarding_permissions_desc">Kazde z nich odpowiada za osobny element dzialania OCR i alertow. Braki tutaj najczesciej tlumacza problemy w trasie.</string>
+    <string name="onboarding_permission_camera_name">Kamera</string>
+    <string name="onboarding_permission_camera_desc">OCR tablic w czasie rzeczywistym z obrazu telefonu.</string>
+    <string name="onboarding_permission_location_name">Lokalizacja GPS</string>
+    <string name="onboarding_permission_location_desc">Predkosc jazdy, gating skanowania i praca w tle.</string>
+    <string name="onboarding_permission_overlay_name">Overlay</string>
+    <string name="onboarding_permission_overlay_desc">Alert nad Waze, Google Maps i innymi aplikacjami.</string>
+    <string name="onboarding_permission_notifications_name">Powiadomienia</string>
+    <string name="onboarding_permission_notifications_desc">Heads-up alert, fallback dla overlay i foreground service.</string>
+    <string name="onboarding_grant_permissions">Nadaj brakujace uprawnienia</string>
+    <string name="onboarding_overlay_permission">Otworz ustawienia overlay</string>
+    <string name="onboarding_overlay_settings_hint">Overlay wymaga ekranu systemowego. Za chwile otworzymy odpowiednie ustawienia.</string>
+    <string name="onboarding_battery_banner_title">Wylacz agresywne oszczedzanie baterii</string>
+    <string name="onboarding_battery_banner_body">Jesli system ograniczy prace aplikacji w tle, skanowanie moze zatrzymac sie podczas jazdy. To dotyczy nie tylko Xiaomi i Huawei - warto sprawdzic to na kazdym telefonie.</string>
+    <string name="onboarding_mount_title">Montaz i bateria</string>
+    <string name="onboarding_mount_desc">Zamontuj telefon stabilnie przy szybie tak, by tylna kamera widziala droge. Na dluzsze trasy podlacz ladowarke.</string>
+    <string name="onboarding_battery_settings">Pokaz ustawienia baterii</string>
+    <string name="onboarding_mode_title">Wybierz tryb pracy</string>
+    <string name="onboarding_mode_subtitle">W MVP aktywny jest tylko tryb telefonu. Viofo zostaje czytelnie pokazane jako nastepny krok produktu.</string>
+    <string name="onboarding_phone_mode">Tylko kamera przednia (telefon)</string>
+    <string name="onboarding_phone_mode_desc">Kamera telefonu skierowana na droge. OCR co okolo 1 s, alert w tle i overlay nad nawigacja.</string>
+    <string name="onboarding_viofo_mode">Kamera przednia + tylna Viofo</string>
+    <string name="onboarding_viofo_mode_desc">Telefon z przodu, Viofo przez Wi-Fi z tylu. Podwojne pokrycie i wiekszy zasieg wykrywania.</string>
+    <string name="onboarding_viofo_rear_mode">Tylko kamera tylna Viofo</string>
+    <string name="onboarding_viofo_rear_mode_desc">Telefon jako sterownik i alert center, obraz tylko z Viofo snapshot HTTP.</string>
+    <string name="onboarding_coming_soon">Wkrotce</string>
+    <string name="onboarding_mode_active">Aktywny</string>
+    <string name="onboarding_affiliate_title">Polecany hardware pod tryb Pro</string>
+    <string name="onboarding_affiliate_desc">Viofo A119 Mini 2 to sensowny kierunek pod kolejny etap projektu: mala kamera, Wi-Fi i dobry punkt startowy do integracji snapshot HTTP.</string>
+    <string name="onboarding_continue">Przejdz do trybu jazdy</string>
+    <string name="onboarding_viofo_dialog_title">Tryb Viofo pojawi sie w v1.0</string>
+    <string name="onboarding_viofo_dialog_message">W tej wersji zostawiamy blokade i TODO pod afiliacyjny link do Viofo A119 Mini 2. MVP obsluguje tylko kamere telefonu.</string>
+    <string name="onboarding_viofo_dialog_link">Otworz strone Viofo</string>
+    <string name="onboarding_viofo_link">https://www.viofo.com/products/viofo-a119-mini-2-2k-hdr-5ghz-wi-fi-gps-voice-control-dash-cam</string>
+
+    <string name="permission_camera_granted">OK</string>
+    <string name="permission_camera_missing">Brak</string>
+    <string name="permission_location_granted">OK</string>
+    <string name="permission_location_missing">Brak</string>
+    <string name="permission_overlay_granted">OK</string>
+    <string name="permission_overlay_missing">Brak</string>
+    <string name="permission_notifications_granted">OK</string>
+    <string name="permission_notifications_missing">Brak</string>
+
+    <string name="common_back">Wstecz</string>
+    <string name="common_ok">OK</string>
+    <string name="missing_permissions_message">Brakuje wymaganych uprawnien do uruchomienia detekcji.</string>
+    <string name="foreground_permission_toast">Foreground service uruchomiony.</string>
+</resources>

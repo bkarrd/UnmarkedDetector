@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.unmarkeddetector.presentation.splash.SplashFragment"
+        android:label="Splash">
+        <action
+            android:id="@+id/action_splashFragment_to_onboardingFragment"
+            app:destination="@id/onboardingFragment" />
+        <action
+            android:id="@+id/action_splashFragment_to_mainDrivingFragment"
+            app:destination="@id/mainDrivingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.example.unmarkeddetector.presentation.onboarding.OnboardingFragment"
+        android:label="Onboarding">
+        <action
+            android:id="@+id/action_onboardingFragment_to_mainDrivingFragment"
+            app:destination="@id/mainDrivingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mainDrivingFragment"
+        android:name="com.example.unmarkeddetector.presentation.main.MainDrivingFragment"
+        android:label="Main">
+        <action
+            android:id="@+id/action_mainDrivingFragment_to_onboardingFragment"
+            app:destination="@id/onboardingFragment" />
+        <action
+            android:id="@+id/action_mainDrivingFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.unmarkeddetector.presentation.settings.SettingsFragment"
+        android:label="Settings" />
+</navigation>
