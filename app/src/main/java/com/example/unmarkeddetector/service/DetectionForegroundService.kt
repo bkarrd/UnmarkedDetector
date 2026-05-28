@@ -100,8 +100,10 @@ class DetectionForegroundService : LifecycleService() {
         screenOffSuppressionJob?.cancel()
         detectionCoordinator.setServiceRunning(false)
         detectionCoordinator.setUserEnabled(false)
-        detectionCoordinator.releaseCamera()
-        detectionCoordinator.releasePlateTfliteResources()
+        detectionCoordinator.releaseCamera(owner = this)
+        if (!detectionCoordinator.hasAttachedPreview()) {
+            detectionCoordinator.releasePlateTfliteResources()
+        }
         super.onDestroy()
     }
 
@@ -153,8 +155,10 @@ class DetectionForegroundService : LifecycleService() {
         detectionCoordinator.setUserEnabled(false)
         detectionCoordinator.updateSpeed(0f)
         detectionCoordinator.setScreenOffTooLong(false)
-        detectionCoordinator.releaseCamera()
-        detectionCoordinator.releasePlateTfliteResources()
+        detectionCoordinator.releaseCamera(owner = this)
+        if (!detectionCoordinator.hasAttachedPreview()) {
+            detectionCoordinator.releasePlateTfliteResources()
+        }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }

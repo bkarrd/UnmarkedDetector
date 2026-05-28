@@ -43,9 +43,12 @@ class ImagePreprocessor @Inject constructor() {
     }
 
     /**
-     * Wycina prostokąt tablicy z pełnej klatki i zapewnia minimalne wymiary dla ML Kit (≥32 px).
+     * Wycina prostokąt tablicy z pełnej klatki (min. 32 px na bok dla modelu CRNN).
      * Przy szerokości lub wysokości &lt; 40 px dodaje 25% marginesu z każdej strony (padding).
      */
+    fun cropPlate(fullBitmap: Bitmap, plateRect: Rect): Bitmap? = cropPlateForMlKit(fullBitmap, plateRect)
+
+    @Deprecated("Użyj cropPlate", ReplaceWith("cropPlate(fullBitmap, plateRect)"))
     fun cropPlateForMlKit(fullBitmap: Bitmap, plateRect: Rect): Bitmap? {
         var left = plateRect.left
         var top = plateRect.top
@@ -53,6 +56,22 @@ class ImagePreprocessor @Inject constructor() {
         var bottom = plateRect.bottom
         var w = right - left
         var h = bottom - top
+
+        // ── NOWE: wymuś orientację poziomą (tablica zawsze szersza niż wysoka) ──
+        if (h > w) {
+            // Zamień wymiary i wycentruj
+            val centerX = (left + right) / 2
+            val centerY = (top + bottom) / 2
+            val halfW = h / 2  // nowa szerokość = stara wysokość
+            val halfH = (w * 0.35f).toInt().coerceAtLeast(20)  // nowa wysokość = ~35% starej szerokości
+            left = (centerX - halfW).coerceAtLeast(0)
+            top = (centerY - halfH).coerceAtLeast(0)
+            right = (centerX + halfW).coerceAtMost(fullBitmap.width)
+            bottom = (centerY + halfH).coerceAtMost(fullBitmap.height)
+            w = right - left
+            h = bottom - top
+        }
+
         if (w < 40 || h < 40) {
             val padX = (w * 0.25f).roundToInt().coerceAtLeast(1)
             val padY = (h * 0.25f).roundToInt().coerceAtLeast(1)
@@ -63,15 +82,14 @@ class ImagePreprocessor @Inject constructor() {
             w = right - left
             h = bottom - top
         }
-        if (w < 32 || h < 32) {
-            Log.d(
-                LprDebug.TAG,
-                "c) odrzucono crop (ML Kit min 32px): ${w}x${h} po ewentualnym paddingu"
-            )
-            return null
-        }
+        // reszta funkcji bez zmian...
         return try {
             val bmp = Bitmap.createBitmap(fullBitmap, left, top, w, h)
+            if (bmp.width < 32 || bmp.height < 32) {
+                Log.w(LprDebug.TAG, "c) crop OCR odrzucony: ${bmp.width}x${bmp.height} < 32px")
+                bmp.recycle()
+                return null
+            }
             Log.d(LprDebug.TAG, "c) crop OCR final: ${bmp.width}x${bmp.height} (srcRect=$left,$top,$right,$bottom)")
             bmp
         } catch (e: Exception) {

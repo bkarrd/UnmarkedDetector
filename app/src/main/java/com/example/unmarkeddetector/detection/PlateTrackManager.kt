@@ -78,7 +78,7 @@ class PlateTrackManager @Inject constructor() {
         }
 
         tracks.entries.removeAll { (_, track) ->
-            now - track.lastSeenAt > 1_200L || track.missedFrames >= 4
+            now - track.lastSeenAt > 600L || track.missedFrames >= 4
         }
 
         return tracks.values
@@ -138,6 +138,11 @@ class PlateTrackManager @Inject constructor() {
             .groupBy { it.plate }
             .map { (_, detections) -> detections.maxBy { it.confidence } }
             .sortedByDescending { it.confidence }
+    }
+
+    fun leadingOcrText(trackId: Int): String? {
+        val track = tracks[trackId] ?: return null
+        return track.ocrVotes.maxByOrNull { it.value }?.key
     }
 
     fun reset() {

@@ -1,10 +1,10 @@
 package com.example.unmarkeddetector.detection
 
 import android.graphics.Color
+import android.graphics.RectF
 import android.util.Log
 import com.example.unmarkeddetector.domain.model.DetectionVisualizationData
 import com.example.unmarkeddetector.ui.common.GraphicOverlay
-import com.example.unmarkeddetector.util.CoordinateTransformer
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
@@ -47,6 +47,38 @@ class VisualizationManager @Inject constructor() {
         graphicOverlay = null
         Log.d(TAG, "GraphicOverlay detached")
     }
+
+    fun publishPlateRegions(
+        regions: List<PlateRegion>,
+        sourceWidth: Int,
+        sourceHeight: Int
+    ) {
+        val detections = regions.map { region ->
+            val label = region.plateText?.takeIf { it.isNotBlank() } ?: "tablica"
+            GraphicOverlay.SourceDetectionBox(
+                rect = RectF(region.rect),
+                confidence = region.score,
+                label = label,
+                color = Color.GREEN
+            )
+        }
+
+        if (detections.isEmpty()) {
+            clearVisualization()
+        } else {
+            graphicOverlay?.setSourceDetectionBoxes(
+                detections = detections,
+                sourceWidth = sourceWidth,
+                sourceHeight = sourceHeight
+            )
+        }
+    }
+
+    fun publishYoloDetections(
+        regions: List<PlateRegion>,
+        sourceWidth: Int,
+        sourceHeight: Int
+    ) = publishPlateRegions(regions, sourceWidth, sourceHeight)
 
     /**
      * Wyślij dane wizualizacyjne do GraphicOverlay i flow'a

@@ -2,6 +2,7 @@ package com.example.unmarkeddetector.detection
 
 import android.content.Context
 import android.util.Log
+import android.view.Surface
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -80,8 +81,12 @@ class DetectionCoordinator @Inject constructor(
         }
         cameraProvider = provider
 
+        val targetRotation = previewView?.display?.rotation ?: Surface.ROTATION_0
         val preview = if (includePreview) {
-            Preview.Builder().build().also { preview ->
+            Preview.Builder()
+                .setTargetRotation(targetRotation)
+                .build()
+                .also { preview ->
                 previewView?.let { preview.setSurfaceProvider(it.surfaceProvider) }
             }
         } else {
@@ -92,6 +97,7 @@ class DetectionCoordinator @Inject constructor(
             .build()
         val imageAnalysis = analysisUseCase ?: ImageAnalysis.Builder()
             .setResolutionSelector(analysisResolutionSelector)
+            .setTargetRotation(targetRotation)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
             .build()
@@ -170,6 +176,8 @@ class DetectionCoordinator @Inject constructor(
 
     fun hasAttachedPreview(): Boolean = previewView != null
 
+    fun isCameraBound(): Boolean = cameraProvider != null && boundOwner != null
+
     fun setServiceRunning(running: Boolean) {
         _sessionState.value = _sessionState.value.copy(serviceRunning = running)
     }
@@ -206,7 +214,14 @@ class DetectionCoordinator @Inject constructor(
         return nextInterval
     }
 
-    fun releaseCamera() {
+    fun releaseCamera(owner: LifecycleOwner? = null) {
+        if (owner != null && boundOwner !== owner) {
+            Log.d(
+                TAG,
+                "releaseCamera skipped for owner=${owner::class.java.simpleName}; current owner=${boundOwner?.let { it::class.java.simpleName }}"
+            )
+            return
+        }
         cameraProvider?.unbindAll()
         cameraProvider = null
         previewUseCase = null

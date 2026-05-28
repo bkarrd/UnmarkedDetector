@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.camera.core.ImageProxy
 
-fun ImageProxy.toBitmap(): Bitmap {
+fun ImageProxy.toRotatedBitmap(): Bitmap {
     val plane = planes.first()
     val buffer = plane.buffer
     buffer.rewind()

@@ -39,11 +39,12 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
 
         binding?.apply {
             previewView.implementationMode = androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE
+            previewView.scaleType = androidx.camera.view.PreviewView.ScaleType.FILL_CENTER
             detectionCoordinator.attachPreview(previewView)
-
+            
             // Podpij GraphicOverlay do detektora
             detectionCoordinator.attachGraphicOverlay(graphicOverlay)
-
+            
             homeButton.setOnClickListener {
                 findNavController().navigate(R.id.action_mainDrivingFragment_to_onboardingFragment)
             }
@@ -151,7 +152,7 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
                         startButton.alpha = if (startButton.isEnabled) 1f else 0.45f
                         stopButton.isEnabled = isRunning
                         stopButton.alpha = if (stopButton.isEnabled) 1f else 0.45f
-                        if (!state.serviceRunning) {
+                        if (!state.serviceRunning && !detectionCoordinator.isCameraBound()) {
                             bindPreviewToScreen()
                         }
                     }
