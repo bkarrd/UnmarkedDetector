@@ -118,13 +118,7 @@ class PlateTrackManager @Inject constructor() {
                 val best = sortedVotes.firstOrNull() ?: return@mapNotNull null
                 val second = sortedVotes.getOrNull(1)?.value ?: 0f
 
-                if (track.ocrObservations < 1) return@mapNotNull null
-
-                if (track.ocrObservations == 1) {
-                    if (best.value < 0.88f) return@mapNotNull null
-                } else {
-                    if (best.value < 0.68f) return@mapNotNull null
-                }
+                if (track.ocrObservations < 2 || best.value < 0.68f) return@mapNotNull null
 
                 val ambiguous = second > 0f && (best.value - second) < 0.18f
                 if (ambiguous && track.ocrObservations < 3) return@mapNotNull null

@@ -11,7 +11,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.unmarkeddetector.MainActivity
 import com.example.unmarkeddetector.R
@@ -48,7 +47,7 @@ class SystemAlertDispatcher @Inject constructor(
 
         runCatching {
             withContext(Dispatchers.Main) {
-                overlayController.show(event, ::reportFalsePositiveInternal)
+                overlayController.show(event)
             }
         }.onFailure { throwable ->
             Log.e(TAG, "Overlay alert failed, continuing with notification/audio fallback", throwable)
@@ -58,21 +57,6 @@ class SystemAlertDispatcher @Inject constructor(
             vibrate()
         }
         playTone(settings.alertVolume)
-    }
-
-    override suspend fun reportFalsePositive(event: AlertEvent) {
-        reportFalsePositiveInternal(event)
-    }
-
-    private fun reportFalsePositiveInternal(@Suppress("UNUSED_PARAMETER") event: AlertEvent) {
-        applicationScope.launch(Dispatchers.Main) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.alert_reported),
-                Toast.LENGTH_LONG
-            ).show()
-            // TODO(v1.0): POST false positive reports to backend moderation endpoint.
-        }
     }
 
     private fun notifyAlert(event: AlertEvent) {
@@ -95,7 +79,7 @@ class SystemAlertDispatcher @Inject constructor(
             event.plateRecord.plate
         )
         val notification = NotificationCompat.Builder(context, ALERT_NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification_camera)
             .setContentTitle(context.getString(R.string.alert_notification_title))
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))

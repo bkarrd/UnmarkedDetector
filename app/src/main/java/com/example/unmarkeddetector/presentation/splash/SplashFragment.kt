@@ -10,6 +10,7 @@ import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withResumed
 import androidx.navigation.fragment.findNavController
 import com.example.unmarkeddetector.R
 import com.example.unmarkeddetector.databinding.FragmentSplashBinding
@@ -36,7 +37,11 @@ class SplashFragment : Fragment(R.layout.fragment_splash) {
             } else {
                 R.id.action_splashFragment_to_onboardingFragment
             }
-            findNavController().navigate(destination)
+            viewLifecycleOwner.withResumed {
+                if (findNavController().currentDestination?.id == R.id.splashFragment) {
+                    findNavController().navigate(destination)
+                }
+            }
         }
     }
 

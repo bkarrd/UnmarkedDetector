@@ -30,7 +30,7 @@
                 android:layout_height="22dp"
                 android:contentDescription="@null"
                 android:src="@android:drawable/ic_dialog_alert"
-                android:tint="@color/white" />
+                app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/title_text"
@@ -69,17 +69,17 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="***"
+                        android:text="@string/overlay_eu_stars"
                         android:textColor="#FFD44F"
-                        android:textSize="8sp"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="PL"
+                        android:text="@string/overlay_country_code"
                         android:textColor="@color/white"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -138,17 +138,9 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/report_error_button"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/overlay_report_error" />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/close_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="@string/overlay_close" />
             </LinearLayout>
         </LinearLayout>

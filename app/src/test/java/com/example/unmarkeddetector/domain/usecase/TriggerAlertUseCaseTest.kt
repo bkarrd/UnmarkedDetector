@@ -16,7 +16,6 @@ class TriggerAlertUseCaseTest {
             dispatchedEvent = event
         }
 
-        override suspend fun reportFalsePositive(event: AlertEvent) = Unit
     }
 
     private val useCase = TriggerAlertUseCase(dispatcher)

@@ -2,7 +2,6 @@ package com.example.unmarkeddetector.presentation.main
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -21,6 +20,8 @@ import com.example.unmarkeddetector.service.DetectionForegroundService
 import com.example.unmarkeddetector.util.hasRequiredDetectionPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -32,6 +33,7 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
     private val viewModel: MainDrivingViewModel by viewModels()
     private var binding: FragmentMainDrivingBinding? = null
     private var scanAnimator: ObjectAnimator? = null
+    private var warmupHintJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,10 +43,8 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
             previewView.implementationMode = androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE
             previewView.scaleType = androidx.camera.view.PreviewView.ScaleType.FILL_CENTER
             detectionCoordinator.attachPreview(previewView)
-            
-            // Podpij GraphicOverlay do detektora
             detectionCoordinator.attachGraphicOverlay(graphicOverlay)
-            
+
             homeButton.setOnClickListener {
                 findNavController().navigate(R.id.action_mainDrivingFragment_to_onboardingFragment)
             }
@@ -54,14 +54,6 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
                 findNavController().navigate(R.id.action_mainDrivingFragment_to_settingsFragment)
             }
             uniquePlatesCard.setOnClickListener { showUniquePlatesDialog() }
-            scanIntervalText.setOnClickListener {
-                val intervalMs = detectionCoordinator.cycleScanInterval()
-                Toast.makeText(
-                    requireContext(),
-                    "Interwal skanowania: %.1f s".format(intervalMs / 1000f),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
             startScanLineAnimation()
         }
 
@@ -70,9 +62,23 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
         observeState()
     }
 
+    override fun onStart() {
+        super.onStart()
+        binding?.apply {
+            detectionCoordinator.attachPreview(previewView)
+            detectionCoordinator.attachGraphicOverlay(graphicOverlay)
+        }
+    }
+
+    override fun onStop() {
+        detectionCoordinator.detachPreview()
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         scanAnimator?.cancel()
         scanAnimator = null
+        hideWarmupHint()
         detectionCoordinator.detachPreview()
         binding = null
         super.onDestroyView()
@@ -86,10 +92,12 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
             return
         }
         DetectionForegroundService.start(requireContext())
+        showWarmupHint()
     }
 
     private fun stopDetection() {
         DetectionForegroundService.stop(requireContext())
+        hideWarmupHint()
     }
 
     private fun showUniquePlatesDialog() {
@@ -117,7 +125,7 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
             }.onFailure {
                 Toast.makeText(
                     requireContext(),
-                    "Nie udalo sie uruchomic podgladu kamery.",
+                    R.string.main_camera_preview_failed,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -137,21 +145,20 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
                             .take(3)
                             .joinToString(" ")
                             .ifBlank { "--" }
-                        scanIntervalText.text = getString(
-                            R.string.main_scan_interval,
-                            state.currentScanIntervalMs
-                        )
                         val dotColor = when {
                             state.canAnalyze -> requireContext().getColor(R.color.success_green)
                             state.serviceRunning -> requireContext().getColor(R.color.accent_orange)
                             else -> requireContext().getColor(R.color.accent_red)
                         }
-                        statusDot.background.setColorFilter(dotColor, PorterDuff.Mode.SRC_IN)
+                        statusDot.background.setTint(dotColor)
                         val isRunning = state.serviceRunning && state.userEnabled
                         startButton.isEnabled = !isRunning
                         startButton.alpha = if (startButton.isEnabled) 1f else 0.45f
                         stopButton.isEnabled = isRunning
                         stopButton.alpha = if (stopButton.isEnabled) 1f else 0.45f
+                        if (state.lastDetectedPlates.isNotEmpty()) {
+                            hideWarmupHint()
+                        }
                         if (!state.serviceRunning && !detectionCoordinator.isCameraBound()) {
                             bindPreviewToScreen()
                         }
@@ -159,6 +166,21 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
                 }
             }
         }
+    }
+
+    private fun showWarmupHint() {
+        warmupHintJob?.cancel()
+        binding?.warmupHintText?.visibility = View.VISIBLE
+        warmupHintJob = viewLifecycleOwner.lifecycleScope.launch {
+            delay(MODEL_WARMUP_HINT_DURATION_MS)
+            binding?.warmupHintText?.visibility = View.GONE
+        }
+    }
+
+    private fun hideWarmupHint() {
+        warmupHintJob?.cancel()
+        warmupHintJob = null
+        binding?.warmupHintText?.visibility = View.GONE
     }
 
     private fun startScanLineAnimation() {
@@ -173,5 +195,9 @@ class MainDrivingFragment : Fragment(R.layout.fragment_main_driving) {
                 start()
             }
         }
+    }
+
+    companion object {
+        private const val MODEL_WARMUP_HINT_DURATION_MS = 14_000L
     }
 }

@@ -70,7 +70,7 @@
                     android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@android:drawable/ic_menu_camera"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -128,7 +128,7 @@
                     android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@android:drawable/ic_menu_mylocation"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -185,7 +185,7 @@
                     android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@android:drawable/ic_menu_view"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -242,7 +242,7 @@
                     android:contentDescription="@null"
                     android:padding="8dp"
                     android:src="@android:drawable/ic_dialog_info"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -303,7 +303,7 @@
                         android:contentDescription="@null"
                         android:padding="6dp"
                         android:src="@android:drawable/ic_lock_idle_low_battery"
-                        android:tint="@color/accent_orange" />
+                        app:tint="@color/accent_orange" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -316,7 +316,7 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/overlay_hint"
+                    android:id="@+id/battery_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -330,7 +330,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="@string/onboarding_battery_settings" />
+                    android:text="@string/onboarding_battery_settings"
+                    android:textColor="@color/accent_orange" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -343,10 +344,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/grant_overlay_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/onboarding_overlay_permission" />
+            android:text="@string/onboarding_overlay_permission"
+            android:textColor="@color/accent_orange"
+            app:strokeColor="@color/accent_orange" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -509,47 +513,6 @@
                     android:text="@string/onboarding_coming_soon"
                     android:textColor="@color/accent_orange"
                     app:chipBackgroundColor="@color/night_700" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/viofo_affiliate_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            app:cardBackgroundColor="@color/night_800"
-            app:cardCornerRadius="18dp"
-            app:strokeColor="#30FF8C42"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/onboarding_affiliate_title"
-                    android:textColor="@color/accent_orange"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/onboarding_affiliate_desc"
-                    android:textColor="@color/sand_200"
-                    android:textSize="12sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/viofo_link_button"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="@string/onboarding_viofo_dialog_link" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -119,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-condensed"
-            android:text="0"
+            android:text="@string/main_initial_zero"
             android:textColor="@color/white"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -129,7 +129,7 @@
             android:layout_height="wrap_content"
             android:text="@string/main_speed_unit"
             android:textColor="@color/sand_200"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <FrameLayout
@@ -165,36 +165,24 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/camera_assumption_text"
-            android:layout_width="wrap_content"
+            android:id="@+id/warmup_hint_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:background="@drawable/bg_hud_chip"
             android:paddingStart="12dp"
-            android:paddingTop="6dp"
+            android:paddingTop="8dp"
             android:paddingEnd="12dp"
-            android:paddingBottom="6dp"
-            android:text="@string/main_camera_assumption"
-            android:textColor="@color/sand_200"
-            android:textSize="11sp" />
-
-        <TextView
-            android:id="@+id/scan_interval_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/bg_hud_chip"
-            android:paddingStart="12dp"
-            android:paddingTop="6dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="6dp"
-            android:text="@string/main_scan_interval"
-            android:textColor="@color/sand_200"
-            android:textSize="11sp" />
+            android:paddingBottom="8dp"
+            android:text="@string/main_model_warmup_hint"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -214,7 +202,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="0"
+                    android:text="@string/main_initial_zero"
                     android:textColor="@color/white"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -241,7 +229,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="0"
+                    android:text="@string/main_initial_zero"
                     android:textColor="@color/accent_orange"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -273,7 +261,7 @@
                     android:autoSizeTextType="uniform"
                     android:fontFamily="sans-serif-condensed"
                     android:maxLines="1"
-                    android:text="--"
+                    android:text="@string/main_initial_no_scan"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />

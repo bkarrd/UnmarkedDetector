@@ -31,7 +31,7 @@ class AlertOverlayController @Inject constructor(
     private var overlayView: View? = null
     private var dismissJob: Job? = null
 
-    fun show(event: AlertEvent, onReportFalsePositive: (AlertEvent) -> Unit) {
+    fun show(event: AlertEvent) {
         if (!Settings.canDrawOverlays(context)) return
 
         dismiss()
@@ -52,11 +52,6 @@ class AlertOverlayController @Inject constructor(
         binding.confidenceText.text = context.getString(R.string.overlay_confidence, confidencePercent)
         binding.confidenceBar.progress = confidencePercent
         binding.closeButton.setOnClickListener { dismiss() }
-        binding.reportErrorButton.setOnClickListener {
-            onReportFalsePositive(event)
-            dismiss()
-        }
-
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,

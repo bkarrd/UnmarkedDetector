@@ -47,4 +47,22 @@ class PlateTrackManagerTest {
 
         assertThat(stableDetections).isEmpty()
     }
+
+    @Test
+    fun `does not emit detection after single confident observation`() {
+        val manager = PlateTrackManager()
+        val tracks = manager.updateRegions(
+            regions = listOf(PlateRegion(Rect(80, 30, 280, 95), 0.95f)),
+            now = 3_000L
+        )
+        manager.registerRecognitions(
+            trackId = tracks.first().trackId,
+            detections = listOf(com.example.unmarkeddetector.domain.model.DetectionResult("WND83976", 0.99f, 3_000L)),
+            now = 3_000L
+        )
+
+        val stableDetections = manager.collectStableDetections(now = 3_050L)
+
+        assertThat(stableDetections).isEmpty()
+    }
 }

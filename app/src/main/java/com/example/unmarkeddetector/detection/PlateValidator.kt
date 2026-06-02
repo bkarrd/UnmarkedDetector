@@ -7,7 +7,7 @@ object PlateValidator {
         RegexOption.IGNORE_CASE
     )
 
-    // Includes a wide set of Polish prefixes plus fictional MVP seed prefixes used in tests/data.
+    // Includes Polish prefixes and local seed prefixes used in tests and bundled data.
     private val validPrefixes = setOf(
         "BA", "BIA", "BBI", "BGR", "BHA", "BI", "BIA", "BKL", "BMN", "BS", "BSE", "BSI",
         "BSK", "BSU", "BWM", "BZA", "CB", "CG", "CGD", "CGR", "CIN", "CLI", "CM", "CNA",
@@ -40,10 +40,10 @@ object PlateValidator {
 
     fun cleanOCRResult(raw: String): String {
         return raw
+            .uppercase()
             .replace(Regex("[^A-Z0-9\\s-]"), " ")
             .replace(Regex("\\s+"), " ")
             .trim()
-            .uppercase()
     }
 
     fun extractPlates(rawText: String): List<String> {
@@ -51,7 +51,7 @@ object PlateValidator {
         val directMatches = plateRegex.findAll(cleaned)
             .map { match -> match.groupValues[1] }
             .map { candidate -> candidate.replace(Regex("[\\s-]"), "").uppercase() }
-            .filter { isValidPolishPlate(it) }
+            .mapNotNull(::canonicalizePolishPlate)
             .toList()
 
         val compactMatches = extractCompactCandidates(cleaned)
@@ -75,14 +75,7 @@ object PlateValidator {
     }
 
     fun isValidPolishPlate(text: String): Boolean {
-        val clean = text.replace(Regex("[\\s-]"), "").uppercase()
-        if (clean.length !in 6..8) return false
-
-        val prefix2 = clean.take(2)
-        val prefix3 = clean.take(3)
-        val hasValidPrefix = prefix2 in validPrefixes || prefix3 in validPrefixes
-        val hasValidFormat = clean.matches(Regex("[A-Z]{2,3}[0-9][A-Z0-9]{3,4}"))
-        return hasValidPrefix && hasValidFormat
+        return canonicalizePolishPlate(text) != null
     }
 
     private fun extractCompactCandidates(cleanedText: String): List<String> {
@@ -93,9 +86,7 @@ object PlateValidator {
         for (length in 6..8) {
             for (start in 0..compact.length - length) {
                 val candidate = compact.substring(start, start + length)
-                if (isValidPolishPlate(candidate)) {
-                    matches += candidate
-                }
+                canonicalizePolishPlate(candidate)?.let(matches::add)
             }
         }
         val selected = mutableListOf<String>()
@@ -111,5 +102,67 @@ object PlateValidator {
                 }
             }
         return selected
+    }
+
+    private fun canonicalizePolishPlate(text: String): String? {
+        val clean = text.replace(Regex("[\\s-]"), "").uppercase()
+        if (clean.length !in 6..8 || !clean.all(Char::isLetterOrDigit)) return null
+
+        listOf(3, 2).forEach { prefixLength ->
+            val prefix = clean.take(prefixLength)
+            val suffix = clean.drop(prefixLength)
+            if (prefix in validPrefixes && isValidSuffix(suffix)) return prefix + suffix
+        }
+
+        listOf(2, 3).forEach { prefixLength ->
+            val prefix = clean.take(prefixLength).map(::normalizePrefixCharacter).joinToString("")
+            val suffix = clean.drop(prefixLength)
+            if (prefix in validPrefixes && isValidSuffix(suffix)) return prefix + suffix
+        }
+
+        listOf(3, 2).forEach { prefixLength ->
+            val prefix = repairPrefix(clean.take(prefixLength)) ?: return@forEach
+            val suffix = clean.drop(prefixLength)
+            if (isValidSuffix(suffix)) return prefix + suffix
+        }
+        return null
+    }
+
+    private fun isValidSuffix(suffix: String): Boolean {
+        return suffix.length in 4..5 &&
+            suffix.all(Char::isLetterOrDigit) &&
+            suffix.any(Char::isDigit)
+    }
+
+    private fun normalizePrefixCharacter(character: Char): Char {
+        return when (character) {
+            '0' -> 'O'
+            '1' -> 'I'
+            '5' -> 'S'
+            '8' -> 'B'
+            else -> character
+        }
+    }
+
+    private fun repairPrefix(prefix: String): String? {
+        val candidates = validPrefixes
+            .asSequence()
+            .filter { candidate -> candidate.length == prefix.length }
+            .filter { candidate ->
+                val differences = prefix.indices.filter { index -> prefix[index] != candidate[index] }
+                differences.size == 1 &&
+                    isLikelyPrefixMistake(
+                        raw = prefix[differences.single()],
+                        expected = candidate[differences.single()],
+                        index = differences.single()
+                    )
+            }
+            .toList()
+        return candidates.singleOrNull()
+    }
+
+    private fun isLikelyPrefixMistake(raw: Char, expected: Char, index: Int): Boolean {
+        return normalizePrefixCharacter(raw) == expected ||
+            (index == 0 && raw == 'O' && expected == 'W')
     }
 }

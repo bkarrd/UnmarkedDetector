@@ -15,7 +15,7 @@ class PlateFrameAnalyzer(
     private val triggerAlertUseCase: TriggerAlertUseCase,
     private val analysisScope: CoroutineScope,
     private val canAnalyze: () -> Boolean,
-    private val onScanResult: (PlateSessionManager.ScanResult, Long) -> Unit,
+    private val onScanResult: (PlateSessionManager.ScanResult) -> Unit,
     private val onAlerts: (List<AlertEvent>) -> Unit
 ) : ImageAnalysis.Analyzer {
 
@@ -50,7 +50,7 @@ class PlateFrameAnalyzer(
                 if (scanResult.detectedPlates.isNotEmpty()) {
                     Log.d(TAG, "Plate detections=${scanResult.detectedPlates.joinToString()}")
                 }
-                onScanResult(scanResult, adaptiveScanScheduler.currentIntervalMs())
+                onScanResult(scanResult)
 
                 if (scanResult.alertMatches.isNotEmpty()) {
                     val alerts = mutableListOf<AlertEvent>()

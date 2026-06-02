@@ -31,7 +31,7 @@ Projekt: aplikacja Android, ktora podczas jazdy rozpoznaje tablice rejestracyjne
 | F-14 | Aplikacja pokazuje predkosc GPS i status sesji. | Sredni | Gotowe |
 | F-15 | Uzytkownik moze zmienic glosnosc alertu i wlaczyc lub wylaczyc wibracje. | Sredni | Gotowe |
 | F-16 | Aplikacja pokazuje wersje lokalnej bazy tablic. | Niski | Gotowe |
-| F-17 | Aplikacja pozwala zmieniac interwal skanowania. | Sredni | Gotowe |
+| F-17 | Aplikacja automatycznie dostosowuje interwal skanowania do wynikow detekcji. | Sredni | Gotowe |
 
 ## Wymagania niefunkcjonalne
 
@@ -101,12 +101,12 @@ Kryteria akceptacji:
 
 Karta: Detekcja tablic z obrazu kamery
 
-Opis: Pipeline pobiera klatke z CameraX, przycina istotny obszar obrazu, wykrywa regiony podobne do tablic i przekazuje je do OCR. Dodatkowo istnieje fallback OCR, gdy detektor regionow nic nie znajdzie.
+Opis: Pipeline pobiera klatke z CameraX, wykrywa regiony tablic modelem YOLO i przekazuje crop z tej samej klatki do FastPlateOCR TFLite.
 
 Aktualny stan:
 - CameraX dziala i przekazuje klatki do analizatora,
-- OpenCV generuje propozycje regionow,
-- fallback OCR potrafi zwrocic kandydatow, ale wymaga dalszego filtrowania.
+- YOLO wykrywa regiony tablic na obrazie z ImageAnalysis,
+- FastPlateOCR rozpoznaje znaki lokalnie na telefonie.
 
 Kryteria akceptacji:
 - dla widocznej tablicy pipeline zwraca kandydata,
@@ -126,7 +126,7 @@ Kryteria akceptacji:
 
 Karta: Konfiguracja projektu Android
 
-Opis: Projekt Android/Kotlin z Gradle, Hilt, CameraX, Room, ML Kit, Navigation i Material Components.
+Opis: Projekt Android/Kotlin z Gradle, Hilt, CameraX, Room, LiteRT, Navigation i Material Components.
 
 Kryteria akceptacji:
 - projekt buduje sie przez Gradle,

@@ -24,4 +24,19 @@ class PlateValidatorTest {
         assertThat(PlateValidator.extractPlates("tablica policyjna")).isEmpty()
         assertThat(PlateValidator.isValidPolishPlate("XX12345")).isFalse()
     }
+
+    @Test
+    fun `accepts lowercase OCR output`() {
+        assertThat(PlateValidator.extractPlates("po 25y7p")).containsExactly("PO25Y7P")
+    }
+
+    @Test
+    fun `repairs zero misread inside letter prefix`() {
+        assertThat(PlateValidator.extractPlates("P0 25Y7P")).containsExactly("PO25Y7P")
+    }
+
+    @Test
+    fun `repairs cropped first letter of county prefix`() {
+        assertThat(PlateValidator.extractPlates("OOT F038")).containsExactly("WOTF038")
+    }
 }

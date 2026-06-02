@@ -100,13 +100,23 @@
                     android:textColor="@color/white"
                     android:textStyle="bold" />
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/settings_database_description"
+                    android:textColor="@color/sand_200"
+                    android:textSize="13sp" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/check_updates_button"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@string/settings_check_updates" />
+                    android:text="@string/settings_check_updates"
+                    android:textColor="@color/accent_orange"
+                    app:strokeColor="@color/accent_orange" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

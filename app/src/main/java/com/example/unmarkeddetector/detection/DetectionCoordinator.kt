@@ -2,10 +2,15 @@ package com.example.unmarkeddetector.detection
 
 import android.content.Context
 import android.util.Log
+import android.util.Rational
+import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.ViewPort
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -93,7 +98,12 @@ class DetectionCoordinator @Inject constructor(
             null
         }
         val analysisResolutionSelector = ResolutionSelector.Builder()
-            .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+            .setResolutionStrategy(
+                ResolutionStrategy(
+                    Size(1280, 720),
+                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+                )
+            )
             .build()
         val imageAnalysis = analysisUseCase ?: ImageAnalysis.Builder()
             .setResolutionSelector(analysisResolutionSelector)
@@ -122,21 +132,15 @@ class DetectionCoordinator @Inject constructor(
             TAG,
             "Binding camera to owner=${owner::class.java.simpleName}, previewEnabled=$includePreview, previewAttached=${previewView != null}"
         )
-        if (preview != null) {
-            provider.bindToLifecycle(
-                owner,
-                // TODO(v1.0): swap/extend this frame source with Viofo HTTP snapshots over Wi-Fi.
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                preview,
-                imageAnalysis
+        val selector = CameraSelector.DEFAULT_BACK_CAMERA
+        val groupBuilder = UseCaseGroup.Builder()
+            .addUseCase(imageAnalysis)
+            .setViewPort(
+                previewView?.viewPort
+                    ?: ViewPort.Builder(Rational(16, 9), targetRotation).build()
             )
-        } else {
-            provider.bindToLifecycle(
-                owner,
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                imageAnalysis
-            )
-        }
+        preview?.let(groupBuilder::addUseCase)
+        provider.bindToLifecycle(owner, selector, groupBuilder.build())
 
         previewUseCase = preview
         previewEnabledInBinding = includePreview
@@ -145,7 +149,10 @@ class DetectionCoordinator @Inject constructor(
 
     fun attachPreview(previewView: PreviewView) {
         this.previewView = previewView
-        previewUseCase?.setSurfaceProvider(previewView.surfaceProvider)
+        previewUseCase?.let { preview ->
+            preview.setSurfaceProvider(previewView.surfaceProvider)
+            previewEnabledInBinding = true
+        }
         Log.d(TAG, "PreviewView attached to detection coordinator")
         if (previewUseCase == null && boundOwner != null) {
             applicationScope.launch {
@@ -169,9 +176,22 @@ class DetectionCoordinator @Inject constructor(
     }
 
     fun detachPreview() {
+        val owner = boundOwner
+        val shouldRebindWithoutPreview =
+            _sessionState.value.serviceRunning && owner != null && previewEnabledInBinding
         previewView = null
-        previewEnabledInBinding = false
         detachGraphicOverlay()
+        if (shouldRebindWithoutPreview) {
+            applicationScope.launch {
+                runCatching {
+                    ensureCameraBound(owner!!, includePreview = false)
+                }.onFailure { error ->
+                    Log.e(TAG, "Failed to rebind camera without preview", error)
+                }
+            }
+        } else {
+            previewEnabledInBinding = false
+        }
     }
 
     fun hasAttachedPreview(): Boolean = previewView != null
@@ -194,6 +214,10 @@ class DetectionCoordinator @Inject constructor(
         _sessionState.value = _sessionState.value.copy(screenOffTooLong = suppressed)
     }
 
+    fun setBackgroundRestricted(restricted: Boolean) {
+        _sessionState.value = _sessionState.value.copy(backgroundRestricted = restricted)
+    }
+
     fun resetSessionCounters() {
         detectionPipeline.resetSession()
         adaptiveScanScheduler.reset()
@@ -202,16 +226,9 @@ class DetectionCoordinator @Inject constructor(
             uniquePlates = emptyList(),
             alertCount = 0,
             lastDetectedPlates = emptyList(),
-            currentScanIntervalMs = adaptiveScanScheduler.currentIntervalMs(),
             lastDetectedPlate = null,
             lastAlertPlate = null
         )
-    }
-
-    fun cycleScanInterval(): Long {
-        val nextInterval = adaptiveScanScheduler.cycleManualIntervalMs()
-        _sessionState.value = _sessionState.value.copy(currentScanIntervalMs = nextInterval)
-        return nextInterval
     }
 
     fun releaseCamera(owner: LifecycleOwner? = null) {
@@ -231,22 +248,18 @@ class DetectionCoordinator @Inject constructor(
         Log.i(TAG, "Camera released")
     }
 
-    /** Zamyka interpreter tablicy TFLite i delegaty — po [releaseCamera], gdy detekcja nie jest już potrzebna. */
-    fun releasePlateTfliteResources() {
-        detectionPipeline.releasePlateTfliteResources()
+    /** Releases model resources after the camera is no longer needed. */
+    fun releaseDetectionResources() {
+        detectionPipeline.releaseResources()
     }
 
-    private fun handleScanResult(
-        result: PlateSessionManager.ScanResult,
-        currentIntervalMs: Long
-    ) {
+    private fun handleScanResult(result: PlateSessionManager.ScanResult) {
         val current = _sessionState.value
         val bestDetection = result.detectedPlates.firstOrNull()
         _sessionState.value = current.copy(
             uniquePlateCount = result.totalUniqueInSession,
             uniquePlates = detectionPipeline.getSessionPlates(),
             lastDetectedPlates = result.detectedPlates,
-            currentScanIntervalMs = currentIntervalMs,
             lastDetectedPlate = bestDetection ?: current.lastDetectedPlate
         )
         Log.d(TAG, "Detections accepted=${result.detectedPlates.size}, last=$bestDetection")

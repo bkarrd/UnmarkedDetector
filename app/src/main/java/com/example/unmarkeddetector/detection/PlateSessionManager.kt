@@ -64,7 +64,5 @@ class PlateSessionManager @Inject constructor(
         alertCooldowns.clear()
     }
 
-    fun getSessionCount(): Int = sessionPlates.size
-
     fun getSessionPlates(): List<String> = sessionPlates.toList()
 }
