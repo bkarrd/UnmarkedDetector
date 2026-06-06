@@ -46,7 +46,7 @@
     <string name="settings_alert_volume_value">Poziom: %1$d%%</string>
     <string name="settings_vibration">Wibracja</string>
     <string name="settings_database_version">Wersja bazy: %1$s</string>
-    <string name="settings_database_description">Baza jest przechowywana lokalnie na telefonie. Możesz sprawdzić, czy są dostępne nowsze rekordy.</string>
+    <string name="settings_database_description">Baza jest zapisana lokalnie na telefonie i aktualizowana z Supabase. Możesz ręcznie sprawdzić, czy są dostępne nowsze rekordy.</string>
     <string name="settings_check_updates">Sprawdź aktualizacje</string>
     <string name="settings_updates_synced">Zsynchronizowano rekordy z Supabase: %1$d</string>
     <string name="settings_updates_failed">Nie udało się zsynchronizować bazy: %1$s</string>

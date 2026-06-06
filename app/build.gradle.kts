@@ -56,6 +56,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("friendBeta") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
         debug {
             buildConfigField("String", "PLATE_DB_VERSION", "\"beta-2026.06\"")
         }
@@ -119,4 +125,15 @@ dependencies {
 
 kapt {
     correctErrorTypes = true
+}
+
+tasks.register<Copy>("exportFriendBetaApk") {
+    group = "distribution"
+    description = "Builds an installable APK for sharing with external beta testers."
+    dependsOn("assembleFriendBeta")
+    from(layout.buildDirectory.file("outputs/apk/friendBeta/app-friendBeta.apk"))
+    into(rootProject.layout.projectDirectory.dir("dist"))
+    rename {
+        "detektor-nieoznakowanych-${android.defaultConfig.versionName}-friend-beta.apk"
+    }
 }

@@ -82,7 +82,10 @@ class DetectionPipeline @Inject constructor(
             }
 
             val detectedPlates = plateTrackManager.collectStableDetections(startedAt)
-            sessionManager.processScan(detectedPlates).also { result ->
+            sessionManager.processScan(
+                detectedPlates = detectedPlates,
+                observedPlateRegionCount = regions.size
+            ).also { result ->
                 Log.d(
                     TAG,
                     "Frame processed in ${System.currentTimeMillis() - startedAt}ms, " +

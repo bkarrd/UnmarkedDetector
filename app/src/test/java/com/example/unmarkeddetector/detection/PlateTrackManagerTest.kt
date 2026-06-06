@@ -49,7 +49,7 @@ class PlateTrackManagerTest {
     }
 
     @Test
-    fun `does not emit detection after single confident observation`() {
+    fun `emits detection after single very confident observation`() {
         val manager = PlateTrackManager()
         val tracks = manager.updateRegions(
             regions = listOf(PlateRegion(Rect(80, 30, 280, 95), 0.95f)),
@@ -62,6 +62,24 @@ class PlateTrackManagerTest {
         )
 
         val stableDetections = manager.collectStableDetections(now = 3_050L)
+
+        assertThat(stableDetections.map { it.plate }).containsExactly("WND83976")
+    }
+
+    @Test
+    fun `does not emit single confident observation from weak plate region`() {
+        val manager = PlateTrackManager()
+        val tracks = manager.updateRegions(
+            regions = listOf(PlateRegion(Rect(80, 30, 280, 95), 0.30f)),
+            now = 4_000L
+        )
+        manager.registerRecognitions(
+            trackId = tracks.first().trackId,
+            detections = listOf(com.example.unmarkeddetector.domain.model.DetectionResult("WND83976", 0.99f, 4_000L)),
+            now = 4_000L
+        )
+
+        val stableDetections = manager.collectStableDetections(now = 4_050L)
 
         assertThat(stableDetections).isEmpty()
     }

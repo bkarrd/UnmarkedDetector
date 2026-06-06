@@ -20,14 +20,18 @@ class PlateSessionManager @Inject constructor(
         val detectedPlates: List<String>,
         val newUniquePlates: List<String>,
         val alertMatches: List<AlertMatch>,
-        val totalUniqueInSession: Int
+        val totalUniqueInSession: Int,
+        val observedPlateRegionCount: Int = detectedPlates.size
     )
 
     private val sessionPlates = linkedSetOf<String>()
     private val alertCooldowns = mutableMapOf<String, Long>()
     private val alertCooldownMs = 60_000L
 
-    suspend fun processScan(detectedPlates: List<DetectionResult>): ScanResult {
+    suspend fun processScan(
+        detectedPlates: List<DetectionResult>,
+        observedPlateRegionCount: Int = detectedPlates.size
+    ): ScanResult {
         val now = System.currentTimeMillis()
         val normalizedDetections = detectedPlates
             .groupBy { it.plate }
@@ -55,7 +59,8 @@ class PlateSessionManager @Inject constructor(
             detectedPlates = normalizedDetections.map { it.plate },
             newUniquePlates = newUnique,
             alertMatches = alertMatches,
-            totalUniqueInSession = sessionPlates.size
+            totalUniqueInSession = sessionPlates.size,
+            observedPlateRegionCount = observedPlateRegionCount
         )
     }
 

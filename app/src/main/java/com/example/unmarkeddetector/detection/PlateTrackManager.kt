@@ -8,6 +8,14 @@ import javax.inject.Singleton
 @Singleton
 class PlateTrackManager @Inject constructor() {
 
+    companion object {
+        private const val REPEATED_OBSERVATION_MIN_COUNT = 2
+        private const val REPEATED_OBSERVATION_MIN_VOTE = 0.68f
+        private const val SINGLE_OBSERVATION_MIN_CONFIDENCE = 0.88f
+        private const val SINGLE_OBSERVATION_MIN_REGION_SCORE = 0.35f
+        private const val AMBIGUOUS_VOTE_MARGIN = 0.18f
+    }
+
     private data class Track(
         val id: Int,
         var rect: Rect,
@@ -118,10 +126,22 @@ class PlateTrackManager @Inject constructor() {
                 val best = sortedVotes.firstOrNull() ?: return@mapNotNull null
                 val second = sortedVotes.getOrNull(1)?.value ?: 0f
 
-                if (track.ocrObservations < 2 || best.value < 0.68f) return@mapNotNull null
+                val ambiguous = second > 0f && (best.value - second) < AMBIGUOUS_VOTE_MARGIN
+                val singleStrongObservation =
+                    track.ocrObservations == 1 &&
+                        best.value >= SINGLE_OBSERVATION_MIN_CONFIDENCE &&
+                        track.regionScore >= SINGLE_OBSERVATION_MIN_REGION_SCORE &&
+                        !ambiguous
 
-                val ambiguous = second > 0f && (best.value - second) < 0.18f
-                if (ambiguous && track.ocrObservations < 3) return@mapNotNull null
+                if (!singleStrongObservation) {
+                    if (
+                        track.ocrObservations < REPEATED_OBSERVATION_MIN_COUNT ||
+                        best.value < REPEATED_OBSERVATION_MIN_VOTE
+                    ) {
+                        return@mapNotNull null
+                    }
+                    if (ambiguous && track.ocrObservations < 3) return@mapNotNull null
+                }
 
                 DetectionResult(
                     plate = best.key,

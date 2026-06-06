@@ -1,6 +1,6 @@
 # UnmarkedDetector - gotowa tresc do Trello
 
-Projekt: aplikacja Android, ktora podczas jazdy rozpoznaje tablice rejestracyjne z kamery telefonu, porownuje je z lokalna baza i pokazuje alert, gdy wykryta tablica znajduje sie w bazie.
+Projekt: aplikacja Android, ktora podczas jazdy rozpoznaje tablice rejestracyjne z kamery telefonu, porownuje je z lokalna kopia bazy synchronizowana z Supabase i pokazuje alert, gdy wykryta tablica znajduje sie w bazie.
 
 ## Listy na tablicy Trello
 
@@ -24,27 +24,27 @@ Projekt: aplikacja Android, ktora podczas jazdy rozpoznaje tablice rejestracyjne
 | F-07 | Aplikacja filtruje wyniki OCR do formatow polskich tablic. | Wysoki | Gotowe |
 | F-08 | Aplikacja liczy unikalne tablice wykryte w aktualnej sesji. | Sredni | Gotowe |
 | F-09 | Klikniecie w "Unikalne tablice" pokazuje liste tablic z aktualnej sesji. | Sredni | Gotowe |
-| F-10 | Aplikacja porownuje wykryte tablice z lokalna baza pojazdow. | Wysoki | Gotowe |
+| F-10 | Aplikacja porownuje wykryte tablice z lokalna kopia bazy pojazdow. | Wysoki | Gotowe |
 | F-11 | Po dopasowaniu tablicy aplikacja pokazuje alert jako powiadomienie i nakladke ekranowa. | Wysoki | Gotowe |
 | F-12 | Uzytkownik moze zglosic bledny alarm z poziomu nakladki. | Sredni | Czesc. gotowe |
 | F-13 | Detekcja dziala jako foreground service. | Wysoki | Gotowe |
 | F-14 | Aplikacja pokazuje predkosc GPS i status sesji. | Sredni | Gotowe |
 | F-15 | Uzytkownik moze zmienic glosnosc alertu i wlaczyc lub wylaczyc wibracje. | Sredni | Gotowe |
-| F-16 | Aplikacja pokazuje wersje lokalnej bazy tablic. | Niski | Gotowe |
+| F-16 | Aplikacja pokazuje wersje lokalnej bazy tablic i pozwala recznie sprawdzic aktualizacje. | Niski | Gotowe |
 | F-17 | Aplikacja automatycznie dostosowuje interwal skanowania do wynikow detekcji. | Sredni | Gotowe |
 
 ## Wymagania niefunkcjonalne
 
 | ID | Wymaganie | Priorytet | Status |
 | --- | --- | --- | --- |
-| N-01 | Aplikacja dziala lokalnie na telefonie, bez stalego internetu. | Wysoki | Gotowe |
+| N-01 | Detekcja, OCR i porownanie z ostatnio pobrana baza dzialaja lokalnie na telefonie, bez stalego internetu. | Wysoki | Gotowe |
 | N-02 | Analiza obrazu nie blokuje interfejsu uzytkownika. | Wysoki | Gotowe |
 | N-03 | Skanowanie jest ograniczane adaptacyjnie, aby zmniejszyc zuzycie baterii. | Sredni | Gotowe |
 | N-04 | Alert jest czytelny podczas korzystania z nawigacji. | Wysoki | Gotowe |
 | N-05 | Brak uprawnien jest obslugiwany jasnym komunikatem. | Wysoki | Gotowe |
 | N-06 | Kod jest podzielony na warstwy: prezentacja, detekcja, domena, dane. | Sredni | Gotowe |
 | N-07 | Najwazniejsze reguly walidacji tablic i sesji maja testy jednostkowe. | Sredni | Gotowe |
-| N-08 | Projekt da sie rozbudowac o zewnetrzna kamere i backend. | Niski | Czesc. gotowe |
+| N-08 | Projekt da sie rozbudowac o zewnetrzna kamere, panel administracyjny bazy i platnosci. | Niski | Czesc. gotowe |
 
 ## Karty do Trello
 
@@ -52,16 +52,16 @@ Projekt: aplikacja Android, ktora podczas jazdy rozpoznaje tablice rejestracyjne
 
 Karta: Opis projektu
 
-Opis: UnmarkedDetector wspiera kierowce podczas jazdy. Telefon zamontowany przy szybie analizuje obraz z kamery, rozpoznaje tablice, porownuje je z lokalna baza i ostrzega, gdy znajdzie dopasowanie.
+Opis: UnmarkedDetector wspiera kierowce podczas jazdy. Telefon zamontowany przy szybie analizuje obraz z kamery, rozpoznaje tablice, porownuje je z lokalna kopia bazy synchronizowana z Supabase i ostrzega, gdy znajdzie dopasowanie.
 
 Kryteria akceptacji:
 - opis wskazuje problem, odbiorce i scenariusz uzycia,
-- zakres MVP obejmuje kamere telefonu, OCR, lokalna baze i alerty,
+- zakres MVP obejmuje kamere telefonu, OCR, lokalna baze, synchronizacje z Supabase i alerty,
 - funkcje przyszle sa oddzielone od zakresu semestralnego.
 
 Karta: Zakres MVP
 
-Opis: MVP obejmuje tryb jazdy, podglad kamery, OCR tablic, walidacje wynikow, lokalna baze, alerty, statystyki sesji i ustawienia alertow.
+Opis: MVP obejmuje tryb jazdy, podglad kamery, OCR tablic, walidacje wynikow, lokalna baze synchronizowana z Supabase, alerty, statystyki sesji i ustawienia alertow.
 
 Kryteria akceptacji:
 - w Trello sa osobne karty dla funkcji MVP,
@@ -166,13 +166,15 @@ Kryteria akceptacji:
 - po starcie detekcji widoczne jest powiadomienie,
 - przycisk w powiadomieniu zatrzymuje usluge.
 
-Karta: Lokalna baza tablic
+Karta: Lokalna baza tablic i synchronizacja Supabase
 
-Opis: Room przechowuje lokalne rekordy tablic i przy starcie uzupelnia baze przykladowymi danymi.
+Opis: Room przechowuje lokalne rekordy tablic, aplikacja potrafi pobrac aktualna baze z Supabase i zapisac ja lokalnie. Przy pustej bazie aplikacja probuje pobrac rekordy z Supabase, a uzytkownik moze wymusic reczna synchronizacje w ustawieniach.
 
 Kryteria akceptacji:
 - repozytorium potrafi znalezc tablice po numerze,
-- aplikacja zna wersje lokalnej bazy.
+- aplikacja zna wersje lokalnej bazy,
+- przycisk sprawdzania aktualizacji pobiera rekordy z Supabase i pokazuje wynik synchronizacji,
+- blad synchronizacji nie usuwa ostatniej lokalnej kopii danych.
 
 Karta: Alert po dopasowaniu tablicy
 
@@ -233,11 +235,11 @@ Opis: Pobieranie snapshotow z kamery Viofo przez Wi-Fi i przekazywanie ich do te
 
 Powod odlozenia: wymaga stabilnej integracji sprzetowej i testow z konkretnym modelem kamery.
 
-Karta: Backend do aktualizacji bazy tablic
+Karta: Panel administracyjny i moderacja bazy tablic
 
-Opis: Serwer z aktualizacjami bazy, endpoint wersji, pobieranie nowych rekordow i synchronizacja.
+Opis: Panel do dodawania, weryfikowania i wersjonowania rekordow w bazie Supabase oraz proces moderacji zmian.
 
-Powod odlozenia: MVP dziala lokalnie, a backend zwieksza zakres o infrastrukture i bezpieczenstwo danych.
+Powod odlozenia: aplikacja ma juz synchronizacje z Supabase, ale pelny panel administracyjny i proces moderacji zwiekszaja zakres projektu.
 
 Karta: Google Play Billing
 
@@ -265,4 +267,4 @@ Powod odlozenia: w semestrze wystarczy historia biezacej sesji i licznik unikaln
 
 ## Krotki opis do prezentacji
 
-UnmarkedDetector to aplikacja Android wspierajaca kierowce w wykrywaniu tablic rejestracyjnych podczas jazdy. Telefon zamontowany przy szybie analizuje obraz z kamery, rozpoznaje tekst tablic, filtruje wyniki OCR i porownuje je z lokalna baza. Gdy tablica zostanie dopasowana do rekordu w bazie, aplikacja pokazuje alert w formie powiadomienia oraz nakladki nad innymi aplikacjami. W semestrze skupiamy sie na MVP dzialajacym lokalnie na telefonie. Funkcje takie jak kamera Viofo, backend aktualizacji bazy i platnosci zostaja zaplanowane jako dalszy rozwoj.
+UnmarkedDetector to aplikacja Android wspierajaca kierowce w wykrywaniu tablic rejestracyjnych podczas jazdy. Telefon zamontowany przy szybie analizuje obraz z kamery, rozpoznaje tekst tablic, filtruje wyniki OCR i porownuje je z lokalna kopia bazy synchronizowana z Supabase. Gdy tablica zostanie dopasowana do rekordu w bazie, aplikacja pokazuje alert w formie powiadomienia oraz nakladki nad innymi aplikacjami. W semestrze skupiamy sie na MVP, w ktorym detekcja i alerty dzialaja lokalnie na telefonie, a baza moze byc aktualizowana z Supabase. Funkcje takie jak kamera Viofo, panel administracyjny bazy i platnosci zostaja zaplanowane jako dalszy rozwoj.

@@ -45,10 +45,17 @@ class PlateFrameAnalyzer(
         analysisScope.launch {
             try {
                 val scanResult = detectionPipeline.processFrame(image)
-                adaptiveScanScheduler.onScanCompleted(scanResult.detectedPlates.isNotEmpty())
+                val hasPlateActivity =
+                    scanResult.detectedPlates.isNotEmpty() || scanResult.observedPlateRegionCount > 0
+                adaptiveScanScheduler.onScanCompleted(hasPlateActivity)
 
                 if (scanResult.detectedPlates.isNotEmpty()) {
                     Log.d(TAG, "Plate detections=${scanResult.detectedPlates.joinToString()}")
+                } else if (scanResult.observedPlateRegionCount > 0) {
+                    Log.d(
+                        TAG,
+                        "Plate regions observed=${scanResult.observedPlateRegionCount}, waiting for OCR confirmation"
+                    )
                 }
                 onScanResult(scanResult)
 

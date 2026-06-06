@@ -59,4 +59,16 @@ class PlateSessionManagerTest {
         assertThat(first.alertMatches).hasSize(1)
         assertThat(second.alertMatches).isEmpty()
     }
+
+    @Test
+    fun `reports observed plate regions even before accepted OCR`() = runTest {
+        val result = manager.processScan(
+            detectedPlates = emptyList(),
+            observedPlateRegionCount = 2
+        )
+
+        assertThat(result.detectedPlates).isEmpty()
+        assertThat(result.totalUniqueInSession).isEqualTo(0)
+        assertThat(result.observedPlateRegionCount).isEqualTo(2)
+    }
 }

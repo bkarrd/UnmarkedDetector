@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>requirements.md</title>
+<style>body { font-family: Arial, sans-serif; line-height: 1.55; max-width: 1100px; margin: 32px auto; padding: 0 20px; color: #1f2937; }
+h1, h2, h3 { color: #111827; line-height: 1.25; }
+h1 { border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; }
+h2 { margin-top: 32px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+th { background: #f3f4f6; text-align: left; }
+code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; }
+pre { background: #111827; color: #f9fafb; padding: 14px; border-radius: 8px; overflow-x: auto; }
+a { color: #2563eb; }</style>
+</head>
+<body>
+<h1>Dokumentacja wymagań</h1>
+<p>Projekt: Detektor Nieoznakowanych</p>
+<p>Wersja dokumentu: 1.1</p>
+<p>Data: 2026-06-03</p>
+<p>Wersja aplikacji: 0.1.0-beta</p>
+<h2>Cel systemu</h2>
+<p>Aplikacja Android wspiera kierowcę podczas jazdy przez lokalne rozpoznawanie tablic rejestracyjnych z obrazu tylnej kamery telefonu. System wykrywa obszary tablic, odczytuje tekst tablicy modelem OCR, porównuje wynik z lokalną kopią bazy pojazdów synchronizowaną z Supabase i pokazuje alert, gdy tablica znajduje się w bazie.</p>
+<h2>Zakres projektu</h2>
+<p>W zakresie wersji beta znajduje się:</p>
+<ul>
+<li>skanowanie obrazu z tylnej kamery telefonu,</li>
+<li>wykrywanie tablic modelem lokalnym,</li>
+<li>rozpoznawanie tekstu tablic modelem TFLite,</li>
+<li>walidacja i stabilizacja wyników OCR,</li>
+<li>lokalna baza tablic w Room, synchronizowana z bazą Supabase,</li>
+<li>ręczne sprawdzanie aktualizacji bazy z poziomu ustawień,</li>
+<li>alerty przez powiadomienia i opcjonalną nakładkę nad innymi aplikacjami,</li>
+<li>praca jako foreground service,</li>
+<li>ekran ustawień i podstawowa obsługa uprawnień.</li>
+</ul>
+<p>Poza zakresem bieżącej wersji:</p>
+<ul>
+<li>integracja z kamerą samochodową Viofo,</li>
+<li>pełny panel administracyjny i proces moderacji rekordów w bazie,</li>
+<li>płatności Google Play Billing,</li>
+<li>długoterminowa historia tras,</li>
+<li>automatyczne zgłoszenia błędnych alarmów do backendu.</li>
+</ul>
+<h2>Aktorzy</h2>
+<table><thead><tr><th>Aktor</th><th>Opis</th></tr></thead><tbody><tr><td>Kierowca / użytkownik</td><td>Uruchamia aplikację, nadaje uprawnienia, rozpoczyna i kończy skanowanie.</td></tr><tr><td>System Android</td><td>Dostarcza kamerę, lokalizację, powiadomienia, ograniczenia baterii i ekran overlay.</td></tr><tr><td>Lokalna baza tablic</td><td>Przechowuje na telefonie rekordy tablic, marek, modeli i regionów pobrane z Supabase.</td></tr><tr><td>Supabase</td><td>Zdalne źródło aktualizacji bazy tablic.</td></tr><tr><td>Usługa detekcji</td><td>Foreground service analizujący obraz także po przejściu aplikacji w tło.</td></tr></tbody></table>
+<h2>Wymagania funkcjonalne</h2>
+<table><thead><tr><th>ID</th><th>Wymaganie</th><th>Priorytet</th><th>Kryterium akceptacji</th></tr></thead><tbody><tr><td>F-01</td><td>Aplikacja pokazuje ekran startowy i przechodzi do onboardingu albo ekranu jazdy.</td><td>Wysoki</td><td>Po uruchomieniu użytkownik widzi spójny ekran ładowania i trafia do właściwego ekranu.</td></tr><tr><td>F-02</td><td>Aplikacja informuje o wymaganych uprawnieniach: kamera, lokalizacja, powiadomienia.</td><td>Wysoki</td><td>Brak uprawnienia blokuje start skanowania i pokazuje czytelny komunikat.</td></tr><tr><td>F-03</td><td>Aplikacja obsługuje odmowę uprawnień.</td><td>Wysoki</td><td>Po odmowie użytkownik dostaje wyjaśnienie i może przejść do ustawień aplikacji.</td></tr><tr><td>F-04</td><td>Użytkownik może opcjonalnie włączyć alert nad innymi aplikacjami.</td><td>Średni</td><td>Overlay jest opisany jako opcjonalny; bez niego nadal działa powiadomienie.</td></tr><tr><td>F-05</td><td>Użytkownik może uruchomić i zatrzymać tryb skanowania.</td><td>Wysoki</td><td>Przyciski Start i Stop zmieniają stan usługi oraz powiadomienia.</td></tr><tr><td>F-06</td><td>Aplikacja analizuje obraz z tylnej kamery telefonu.</td><td>Wysoki</td><td>Po starcie usługi CameraX dostarcza klatki do analizatora.</td></tr><tr><td>F-07</td><td>Skanowanie działa po przejściu aplikacji w tło.</td><td>Wysoki</td><td>Kamera jest zbindowana do foreground service, a preview jest tylko dodatkiem UI.</td></tr><tr><td>F-08</td><td>Aplikacja wykrywa regiony tablic na klatce obrazu.</td><td>Wysoki</td><td>Pipeline zwraca listę regionów tablic z wynikiem pewności.</td></tr><tr><td>F-09</td><td>Aplikacja rozpoznaje tekst tablic z wykrytego regionu.</td><td>Wysoki</td><td>FastPlateOCR zwraca kandydata tekstowego dla cropu tablicy.</td></tr><tr><td>F-10</td><td>Aplikacja filtruje wyniki OCR do formatów polskich tablic.</td><td>Wysoki</td><td>Niepoprawne słowa są odrzucane, a typowe pomyłki OCR są normalizowane.</td></tr><tr><td>F-11</td><td>Aplikacja stabilizuje odczyt tablicy w czasie.</td><td>Wysoki</td><td>Pojedyncza obserwacja nie generuje stabilnej detekcji bez potwierdzenia.</td></tr><tr><td>F-12</td><td>Aplikacja liczy unikalne tablice w sesji.</td><td>Średni</td><td>Powtarzająca się tablica nie zwiększa licznika drugi raz.</td></tr><tr><td>F-13</td><td>Aplikacja porównuje rozpoznaną tablicę z lokalną kopią bazy.</td><td>Wysoki</td><td>Dla tablicy znajdującej się w bazie powstaje zdarzenie alertu także bez stałego połączenia z internetem.</td></tr><tr><td>F-14</td><td>Aplikacja pokazuje alert dla dopasowania z bazą.</td><td>Wysoki</td><td>Użytkownik widzi powiadomienie, a przy zgodzie overlay również nakładkę.</td></tr><tr><td>F-15</td><td>Aplikacja pokazuje status działania skanowania.</td><td>Wysoki</td><td>UI i powiadomienie pokazują stan: aktywny, wstrzymany lub nieaktywny.</td></tr><tr><td>F-16</td><td>Aplikacja wykrywa ograniczone działanie w tle.</td><td>Średni</td><td>Przy systemowym ograniczeniu w tle status zmienia się na &quot;Nieaktywny&quot;.</td></tr><tr><td>F-17</td><td>Użytkownik może zmienić głośność alertu i wibrację.</td><td>Średni</td><td>Zmiany ustawień są zapisywane lokalnie.</td></tr><tr><td>F-18</td><td>Aplikacja pokazuje wersję lokalnej bazy.</td><td>Niski</td><td>Ekran ustawień wyświetla wersję bazy i opis synchronizacji z Supabase.</td></tr><tr><td>F-19</td><td>Użytkownik może ręcznie zsynchronizować bazę tablic.</td><td>Średni</td><td>Kliknięcie &quot;Sprawdź aktualizacje&quot; pobiera rekordy z Supabase, zapisuje je w Room i pokazuje wynik synchronizacji.</td></tr></tbody></table>
+<h2>Wymagania niefunkcjonalne</h2>
+<table><thead><tr><th>ID</th><th>Wymaganie</th><th>Priorytet</th><th>Kryterium akceptacji</th></tr></thead><tbody><tr><td>N-01</td><td>Analiza obrazu działa lokalnie na telefonie.</td><td>Wysoki</td><td>Do detekcji, OCR i porównania z ostatnio pobraną bazą nie jest wymagane stałe połączenie z internetem.</td></tr><tr><td>N-02</td><td>UI pozostaje responsywne podczas skanowania.</td><td>Wysoki</td><td>Analiza obrazu działa poza głównym wątkiem interfejsu.</td></tr><tr><td>N-03</td><td>Aplikacja ogranicza zużycie zasobów.</td><td>Średni</td><td>Wykorzystywane jest ImageAnalysis z backpressure i adaptacyjnym skanowaniem.</td></tr><tr><td>N-04</td><td>Aplikacja wspiera Android API 26+.</td><td>Średni</td><td><code>minSdk = 26</code>.</td></tr><tr><td>N-05</td><td>Aplikacja jest przygotowana pod Google Play beta.</td><td>Średni</td><td><code>targetSdk = 35</code>, aplikacja ma spójne teksty i ikonę.</td></tr><tr><td>N-06</td><td>Aplikacja komunikuje ograniczenia pracy w tle.</td><td>Wysoki</td><td>Powiadomienie nie pokazuje fałszywego stanu aktywnego przy ograniczeniach systemu.</td></tr><tr><td>N-07</td><td>Dane bazy są przechowywane lokalnie i aktualizowane ze zdalnego źródła.</td><td>Średni</td><td>Room przechowuje rekordy, Supabase dostarcza aktualizacje, a aplikacja może działać offline na ostatnio zsynchronizowanych danych.</td></tr><tr><td>N-08</td><td>Najważniejsza logika biznesowa ma testy jednostkowe.</td><td>Wysoki</td><td>Testy walidacji tablic, sesji, stabilizacji i alertów przechodzą bez błędów.</td></tr><tr><td>N-09</td><td>Projekt ma separację warstw.</td><td>Średni</td><td>Kod jest podzielony na warstwy presentation, service, detection, domain i data.</td></tr><tr><td>N-10</td><td>Brak internetu nie blokuje skanowania.</td><td>Średni</td><td>Nieudana synchronizacja bazy pokazuje komunikat błędu, ale nie usuwa ostatniej lokalnej kopii danych.</td></tr></tbody></table>
+<h2>Wymagania danych</h2>
+<table><thead><tr><th>ID</th><th>Wymaganie</th><th>Opis</th></tr></thead><tbody><tr><td>D-01</td><td>Rekord tablicy</td><td>System przechowuje numer tablicy, markę, model, region, czas aktualizacji i identyfikator wersji pobrane z Supabase lub z danych zapasowych.</td></tr><tr><td>D-02</td><td>Wynik detekcji</td><td>System przechowuje tekst tablicy, pewność i czas wykrycia.</td></tr><tr><td>D-03</td><td>Stan sesji</td><td>System przechowuje liczbę unikalnych tablic, liczbę alertów, ostatnie skany i status pracy.</td></tr><tr><td>D-04</td><td>Ustawienia użytkownika</td><td>System przechowuje głośność alertu i stan wibracji.</td></tr><tr><td>D-05</td><td>Wynik synchronizacji</td><td>System informuje użytkownika o liczbie rekordów pobranych z Supabase albo o błędzie synchronizacji.</td></tr></tbody></table>
+<h2>Ograniczenia i założenia</h2>
+<ol>
+<li>Telefon musi mieć sprawną tylną kamerę.</li>
+<li>Użytkownik musi nadać uprawnienia do kamery, lokalizacji i powiadomień.</li>
+<li>Overlay jest opcjonalny, ponieważ podstawowy alert działa jako powiadomienie.</li>
+<li>Jakość OCR zależy od oświetlenia, ostrości obrazu i kąta widzenia tablicy.</li>
+<li>System Android może ograniczyć działanie aplikacji w tle mimo ustawień baterii, dlatego aplikacja wykrywa i komunikuje taki stan.</li>
+<li>Połączenie z internetem jest potrzebne do aktualizacji bazy z Supabase, ale nie do samej detekcji i alertów na ostatnio zapisanej lokalnej kopii.</li>
+<li>Aplikacja jest projektem akademickim i wersją beta, więc nie zastępuje profesjonalnego systemu rozpoznawania tablic.</li>
+</ol>
+<h2>Kryteria zakończenia wersji beta</h2>
+<p>Wersję beta uznaje się za gotową do demonstracji, jeżeli:</p>
+<ul>
+<li>projekt kompiluje się bez błędów,</li>
+<li>testy jednostkowe przechodzą,</li>
+<li>lint nie zgłasza błędów blokujących,</li>
+<li>APK instaluje się na telefonie testowym,</li>
+<li>aplikacja działa w tle jako foreground service,</li>
+<li>użytkownik dostaje jasny komunikat przy braku uprawnień lub ograniczeniach baterii,</li>
+<li>ekran ustawień umożliwia ręczne sprawdzenie aktualizacji bazy z Supabase.</li>
+</ul>
+</body>
+</html>

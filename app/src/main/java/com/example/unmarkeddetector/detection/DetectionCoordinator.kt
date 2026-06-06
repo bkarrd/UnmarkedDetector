@@ -259,7 +259,7 @@ class DetectionCoordinator @Inject constructor(
         _sessionState.value = current.copy(
             uniquePlateCount = result.totalUniqueInSession,
             uniquePlates = detectionPipeline.getSessionPlates(),
-            lastDetectedPlates = result.detectedPlates,
+            lastDetectedPlates = result.detectedPlates.ifEmpty { current.lastDetectedPlates },
             lastDetectedPlate = bestDetection ?: current.lastDetectedPlate
         )
         Log.d(TAG, "Detections accepted=${result.detectedPlates.size}, last=$bestDetection")
