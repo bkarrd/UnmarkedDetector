@@ -15,3 +15,4 @@
 local.properties
 /dist/*.apk
 /dist/*.aab
+.codex-remote-attachments
